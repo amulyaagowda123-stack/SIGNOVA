@@ -164,7 +164,7 @@ GitHub: https://github.com/amulyaagowda123-stack
 ## 📸 Project Screenshots
 
 ### SIGNOVA Homepage
-![SIGNOVA Homepage](screenshots/homepage.png)
+![SIGNOVA Homepage](screenshots/homepage.jpeg)
 
 ### Live Sign Recognition
-![SIGNOVA Demo](screenshots/signova_demo.png)
+![SIGNOVA Demo](screenshots/signova_demo.jpeg)
