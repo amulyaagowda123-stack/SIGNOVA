@@ -1,0 +1,10 @@
+opencv-python
+mediapipe
+numpy
+scikit-learn
+joblib
+pywin32
+pygame
+gtts
+pillow
+flask

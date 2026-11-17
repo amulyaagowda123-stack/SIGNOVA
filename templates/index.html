@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIGNOVA – Indian Sign Language AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@500;700&family=Noto+Sans+Kannada:wght@500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: rgba(22, 29, 47, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #06b6d4;
+      --primary-glow: rgba(6, 182, 212, 0.35);
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at 10% 20%, #111a33 0%, var(--bg) 90%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 30px;
+    }
+
+    /* Navbar */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+      color: #fff;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .brand-text h1 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #fff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .lang-group {
+      display: flex;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .lang-btn.active {
+      background: var(--primary);
+      color: #0b0f19;
+      box-shadow: 0 0 12px var(--primary-glow);
+    }
+
+    .voice-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      padding: 6px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .voice-toggle.active {
+      color: #10b981;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    /* Main Grid */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 24px;
+      flex: 1;
+    }
+
+    /* Left Card: Camera */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .camera-container {
+      position: relative;
+      width: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #000;
+      aspect-ratio: 4 / 3;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .camera-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .rec-badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(239, 68, 68, 0.85);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      animation: pulse 1.5s infinite;
+      backdrop-filter: blur(4px);
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.05); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .control-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .btn-main {
+      flex: 1;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-main.recording {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+      animation: pulse 1.2s infinite;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Right Card: Output & History */
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Emergency Alert */
+    .emergency-alert {
+      display: none;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(185, 28, 28, 0.4));
+      border: 2px solid #ef4444;
+      border-radius: 16px;
+      padding: 14px 18px;
+      color: #fecaca;
+      font-weight: 700;
+      font-size: 14px;
+      align-items: center;
+      gap: 10px;
+      animation: pulse 1.2s infinite;
+    }
+
+    .emergency-alert.active {
+      display: flex;
+    }
+
+    /* Translation Card */
+    .translation-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .card-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .trans-item {
+      margin-bottom: 12px;
+    }
+
+    .trans-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .trans-lang {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .trans-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .trans-hindi {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+      color: #fed7aa;
+    }
+
+    .trans-kannada {
+      font-family: 'Noto Sans Kannada', sans-serif;
+      color: #a5f3fc;
+    }
+
+    /* Confidence Meter */
+    .confidence-box {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .conf-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #06b6d4, #10b981);
+      border-radius: 6px;
+      transition: width 0.4s ease;
+    }
+
+    /* History List */
+    .history-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .history-list {
+      list-style: none;
+      overflow-y: auto;
+      max-height: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .history-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .history-item.emergency {
+      border-color: rgba(239, 68, 68, 0.4);
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .history-time {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      padding: 24px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo">S</div>
+      <div class="brand-text">
+        <h1>SIGNOVA</h1>
+        <p>Indian Sign Language AI Recognition & Translation Dashboard</p>
+      </div>
+    </div>
+
+    <div class="top-controls">
+      <div class="lang-group">
+        <button class="lang-btn active" onclick="setLanguage('en')">English</button>
+        <button class="lang-btn" onclick="setLanguage('hi')">हिंदी</button>
+        <button class="lang-btn" onclick="setLanguage('kn')">ಕನ್ನಡ</button>
+      </div>
+
+      <div class="voice-toggle active" id="voiceToggleBtn" onclick="toggleVoice()">
+        <span id="voiceIcon">🔊</span>
+        <span id="voiceLabel">Voice ON</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <!-- Left Column: Video and controls -->
+    <div class="card">
+      <div class="camera-container">
+        <img src="/video_feed" alt="SIGNOVA Live Camera Feed">
+        <div class="rec-badge" id="recBadge">
+          <span>●</span> RECORDING GESTURE...
+        </div>
+      </div>
+
+      <div class="control-actions">
+        <button class="btn-main" id="recordBtn" onclick="toggleRecording()">
+          <span id="btnIcon">▶</span>
+          <span id="btnText">Start Signing (Press SPACE)</span>
+        </button>
+
+        <button class="btn-secondary" onclick="replayAudio()" title="Replay voice">
+          🔁 Replay
+        </button>
+
+        <button class="btn-secondary" onclick="clearHistory()" title="Clear conversation">
+          🧹 Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Column: Outputs -->
+    <div class="right-column">
+      
+      <!-- Emergency Mode Banner -->
+      <div class="emergency-alert" id="emergencyBanner">
+        <span>🚨</span>
+        <div>EMERGENCY DETECTED – IMMEDIATE ASSISTANCE REQUIRED</div>
+      </div>
+
+      <!-- Live Multilingual Card -->
+      <div class="translation-card">
+        <div class="card-title">
+          <span>Live Translation</span>
+          <span id="timestampText">Waiting...</span>
+        </div>
+
+        <div class="trans-item">
+          <div class="trans-lang">English</div>
+          <div class="trans-text" id="textEnglish">—</div>
+        </div>
+
+        <div class="trans-item">
+          <div class="trans-lang">हिंदी (Hindi)</div>
+          <div class="trans-text trans-hindi" id="textHindi">—</div>
+        </div>
+
+        <div class="trans-item">
+          <div class="trans-lang">ಕನ್ನಡ (Kannada)</div>
+          <div class="trans-text trans-kannada" id="textKannada">—</div>
+        </div>
+
+        <!-- Confidence Gauge -->
+        <div class="confidence-box">
+          <div class="conf-header">
+            <span>Model Confidence</span>
+            <span id="confText">0.0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="confProgress"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conversation History -->
+      <div class="history-card">
+        <div class="card-title">
+          <span>Conversation History</span>
+          <span id="historyCount">0 sentences</span>
+        </div>
+
+        <ul class="history-list" id="historyList">
+          <div class="empty-state">No gestures recognized yet. Click Start Signing!</div>
+        </ul>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    let isRecording = false;
+    let voiceEnabled = true;
+    let currentLang = 'en';
+
+    // Spacebar to Start / Stop signing
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+        e.preventDefault();
+        toggleRecording();
+      }
+    });
+
+    async function toggleRecording() {
+      const btn = document.getElementById('recordBtn');
+      const btnIcon = document.getElementById('btnIcon');
+      const btnText = document.getElementById('btnText');
+      const badge = document.getElementById('recBadge');
+
+      const res = await fetch('/api/toggle_recording', { method: 'POST' });
+      const data = await res.json();
+
+      if (data.recording) {
+        isRecording = true;
+        btn.classList.add('recording');
+        btnIcon.textContent = '⏹';
+        btnText.textContent = 'Stop Signing (Press SPACE)';
+        badge.style.display = 'flex';
+      } else {
+        isRecording = false;
+        btn.classList.remove('recording');
+        btnIcon.textContent = '▶';
+        btnText.textContent = 'Start Signing (Press SPACE)';
+        badge.style.display = 'none';
+
+        if (data.status === 'success') {
+          updateResults(data);
+          fetchHistory();
+        } else if (data.message) {
+          alert(data.message);
+        }
+      }
+    }
+
+    function updateResults(data) {
+      document.getElementById('textEnglish').textContent = data.en;
+      document.getElementById('textHindi').textContent = data.hi;
+      document.getElementById('textKannada').textContent = data.kn;
+      document.getElementById('timestampText').textContent = data.time;
+
+      const conf = data.confidence || 0;
+      document.getElementById('confText').textContent = `${conf.toFixed(1)}%`;
+      document.getElementById('confProgress').style.width = `${Math.min(conf, 100)}%`;
+
+      const banner = document.getElementById('emergencyBanner');
+      if (data.is_emergency) {
+        banner.classList.add('active');
+      } else {
+        banner.classList.remove('active');
+      }
+    }
+
+    async function setLanguage(lang) {
+      currentLang = lang;
+      document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      await fetch('/api/set_language', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lang })
+      });
+    }
+
+    async function toggleVoice() {
+      const res = await fetch('/api/toggle_voice', { method: 'POST' });
+      const data = await res.json();
+      voiceEnabled = data.voice_enabled;
+
+      const btn = document.getElementById('voiceToggleBtn');
+      const icon = document.getElementById('voiceIcon');
+      const label = document.getElementById('voiceLabel');
+
+      if (voiceEnabled) {
+        btn.classList.add('active');
+        icon.textContent = '🔊';
+        label.textContent = 'Voice ON';
+      } else {
+        btn.classList.remove('active');
+        icon.textContent = '🔇';
+        label.textContent = 'Voice MUTED';
+      }
+    }
+
+    async function replayAudio() {
+      await fetch('/api/replay', { method: 'POST' });
+    }
+
+    async function clearHistory() {
+      await fetch('/api/clear', { method: 'POST' });
+      document.getElementById('textEnglish').textContent = '—';
+      document.getElementById('textHindi').textContent = '—';
+      document.getElementById('textKannada').textContent = '—';
+      document.getElementById('timestampText').textContent = 'Cleared';
+      document.getElementById('confText').textContent = '0.0%';
+      document.getElementById('confProgress').style.width = '0%';
+      document.getElementById('emergencyBanner').classList.remove('active');
+      fetchHistory();
+    }
+
+    async function fetchHistory() {
+      const res = await fetch('/api/status');
+      const data = await res.json();
+      const list = document.getElementById('historyList');
+
+      if (!data.history || data.history.length === 0) {
+        list.innerHTML = '<div class="empty-state">No gestures recognized yet. Click Start Signing!</div>';
+        document.getElementById('historyCount').textContent = '0 sentences';
+        return;
+      }
+
+      document.getElementById('historyCount').textContent = `${data.history.length} sentences`;
+      list.innerHTML = data.history.map(item => `
+        <li class="history-item ${item.is_emergency ? 'emergency' : ''}">
+          <div>
+            <strong>${item.en}</strong>
+            <span style="color: #94a3b8; font-size: 11px;">(${item.hi} / ${item.kn})</span>
+          </div>
+          <span class="history-time">${item.time}</span>
+        </li>
+      `).join('');
+    }
+
+    // Initial load
+    fetchHistory();
+  </script>
+</body>
+</html>
